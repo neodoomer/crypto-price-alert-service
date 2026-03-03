@@ -1,0 +1,48 @@
+Crypto Price Alert Service
+Stack: Go (Echo), SQLC, PostgreSQL
+ 
+Overview
+Build a service where users create price alerts for crypto tokens. A background job checks live prices every 30 seconds. When a token hits the target price, the service sends a webhook callback to a URL the user registered.
+Example: "Tell me when BTC drops below $60,000."
+ 
+Requirements
+API Endpoints
+ 
+Create alert — User provides token name, target price, direction (above/below), a callback URL, and a secret for signing
+List alerts — Return all alerts with ability to filter by active or triggered
+Delete alert — Cancel an alert before it triggers
+ 
+Background Price Checker
+ 
+Runs every 30 seconds as a goroutine
+Fetches live prices from CoinGecko's free API (/api/v3/simple/price)
+Checks all active alerts against current prices
+When an alert condition is met, marks it as triggered and fires the webhook
+ 
+Webhook Callback
+ 
+POST the alert details (token, target price, current price, timestamp) to the user's callback URL
+Sign the payload body with HMAC-SHA256 using the user's secret and send the signature in the X-Signature-256 header
+5-second timeout on the HTTP call
+If the callback fails, log and move on — no retries needed
+ 
+ 
+Database
+One table: alerts
+Store the token, target price, direction, callback URL, callback secret, triggered status, and timestamps. Design the schema yourself.
+All queries must go through SQLC — no raw SQL in Go code.
+ 
+How to Test
+Build a tiny HTTP server on a different port that prints incoming requests to the terminal. Use that as your callback URL when creating alerts. Create an alert for a price close to the current market price and watch it fire.
+ 
+What We'll Evaluate
+ 
+Clean SQLC usage
+Correct HMAC-SHA256 signing on the outbound webhook
+Handler / service / db layer separation
+The background job doesn't block or crash the main server
+Structured error responses with proper HTTP status codes
+ 
+ 
+Setup
+PostgreSQL via Docker Compose or install locally. Everything else runs on your machine. Include a README with setup steps.

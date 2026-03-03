@@ -1,0 +1,49 @@
+### Crypto Price Alert Service — REST Client
+### Requires: REST Client extension (e.g. REST Client for VS Code / Cursor)
+### Ensure the API server is running: go run cmd/server/main.go
+
+@baseUrl = http://localhost:8080
+@alertId = {{createAlert.response.body.id}}
+
+### Health check
+GET {{baseUrl}}/health
+
+### Create alert (above target)
+# @name createAlert
+POST {{baseUrl}}/alerts
+Content-Type: application/json
+
+{
+  "token": "bitcoin",
+  "target_price": 60000,
+  "direction": "below",
+  "callback_url": "http://localhost:9090/webhook",
+  "callback_secret": "my-secret-key"
+}
+
+### Create alert (below target)
+POST {{baseUrl}}/alerts
+Content-Type: application/json
+
+{
+  "token": "ethereum",
+  "target_price": 3000,
+  "direction": "below",
+  "callback_url": "http://localhost:9090/webhook",
+  "callback_secret": "my-secret-key"
+}
+
+### List all alerts
+GET {{baseUrl}}/alerts
+
+### List only active (non-triggered) alerts
+GET {{baseUrl}}/alerts?triggered=false
+
+### List only triggered alerts
+GET {{baseUrl}}/alerts?triggered=true
+
+### Delete alert (replace with a real UUID or use variable from create response)
+DELETE {{baseUrl}}/alerts/{{alertId}}
+
+### Delete alert by explicit ID (replace UUID after creating an alert)
+# DELETE {{baseUrl}}/alerts/550e8400-e29b-41d4-a716-446655440000
