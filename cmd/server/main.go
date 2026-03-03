@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/neodoomer/crypto-price-alert-service/internal/coingecko"
 	"github.com/neodoomer/crypto-price-alert-service/internal/db"
 	"github.com/neodoomer/crypto-price-alert-service/internal/handler"
 	"github.com/neodoomer/crypto-price-alert-service/internal/service"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -67,9 +67,15 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	addr := ":" + port
+
 	go func() {
-		slog.Info("server starting", "port", 8080)
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+		slog.Info("server starting", "port", port)
+		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
 			slog.Error("server error", "error", err)
 			os.Exit(1)
 		}
