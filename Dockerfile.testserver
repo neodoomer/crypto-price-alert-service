@@ -1,0 +1,20 @@
+# Test webhook server for Railway (same repo, different entrypoint)
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /testserver ./cmd/testserver
+
+FROM alpine:3.20
+
+WORKDIR /app
+COPY --from=builder /testserver /app/testserver
+
+ENV PORT=9090
+EXPOSE 9090
+
+ENTRYPOINT ["/app/testserver"]

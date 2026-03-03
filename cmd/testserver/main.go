@@ -54,7 +54,11 @@ func main() {
 		w.Write([]byte(`{"status":"received"}`))
 	})
 
-	addr := ":9090"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9090"
+	}
+	addr := ":" + port
 	log.Printf("Test webhook server listening on %s", addr)
 	if secret != "" {
 		log.Printf("HMAC verification enabled (SECRET is set)")

@@ -25,6 +25,9 @@ func main() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = "postgres://crypto:crypto@localhost:5432/crypto_alerts?sslmode=disable"
+		slog.Info("DATABASE_URL not set, using default (localhost)")
+	} else {
+		slog.Info("using DATABASE_URL from environment")
 	}
 
 	sqlDB, err := sql.Open("pgx", dsn)
