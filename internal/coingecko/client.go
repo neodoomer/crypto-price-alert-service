@@ -28,7 +28,6 @@ func (c *Client) GetPrices(ctx context.Context, tokenIDs []string) (map[string]f
 	}
 
 	url := fmt.Sprintf("%s/simple/price?ids=%s&vs_currencies=usd", baseURL, strings.Join(tokenIDs, ","))
-	fmt.Println("url", url)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("coingecko: build request: %w", err)
